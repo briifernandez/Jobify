@@ -5,9 +5,10 @@ import { StatusCodes } from 'http-status-codes'
 
 const errorHandlerMiddleware = (err,req,res,next) => {
     //there is an error constructor with a message argument MDN docs
-    console.log(err.message);
+
+
     const defaultError = {
-        statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+        statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
         //if err is present use it if not use generic
         msg: err.message || 'Something went wrong, try again later',
     }
@@ -29,10 +30,10 @@ const errorHandlerMiddleware = (err,req,res,next) => {
 
     }
     //shows whole err object with errors 
-    res.status(defaultError.statusCode).json({msg: err})
+    // res.status(defaultError.statusCode).json({msg: err})
 
     //concise message
-    // res.status(defaultError.statusCode).json({msg: defaultError.msg})
+    res.status(defaultError.statusCode).json({msg: defaultError.msg})
 
     //email and password has to be unique
 } 
