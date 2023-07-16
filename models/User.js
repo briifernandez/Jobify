@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import validator from "validator";
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 const UserSchema = new mongoose.Schema({
     name: {
         type: String, 
@@ -24,6 +26,7 @@ const UserSchema = new mongoose.Schema({
         required:[true, 'Please provide password'], 
         //it is not a validator (this is using indexing) but ensures that the email has to be unique
         minlength: 6,
+        select: false,
 
     },
 
@@ -47,4 +50,20 @@ const UserSchema = new mongoose.Schema({
 
 })
 
+//this is a middleware function for mongoose
+//before we save the document, we want to run some functionality
+//will get triggered in 2 instances - User.create and one in update user
+//this does NOT work if you use User.findOneAndUpdate
+UserSchema.pre('save', async function () {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt)
+    
+})
+
+//JWT
+//everytime john makes a request on the frontend , the request will have a token
+UserSchema.methods.createJWT = function() {
+    return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFETIME })
+
+}
 export default mongoose.model('User', UserSchema)

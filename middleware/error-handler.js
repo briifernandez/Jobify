@@ -4,7 +4,8 @@ import { StatusCodes } from 'http-status-codes'
 //2. there are also seperate controller errors
 
 const errorHandlerMiddleware = (err,req,res,next) => {
-    //there is an error constructor with a message argument MDN docs
+    console.log(err)
+
 
 
     const defaultError = {
@@ -30,7 +31,7 @@ const errorHandlerMiddleware = (err,req,res,next) => {
 
     }
     //shows whole err object with errors 
-    // res.status(defaultError.statusCode).json({msg: err})
+
 
     //concise message
     res.status(defaultError.statusCode).json({msg: defaultError.msg})
