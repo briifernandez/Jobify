@@ -45,7 +45,7 @@ const registerUser = async (currentUser) => {
     console.log(currentUser)
 }
 
-return <AppContext.Provider value={{...state, displayAlert}} >
+return <AppContext.Provider value={{...state, displayAlert, registerUser}} >
 {children} 
 </AppContext.Provider>
 }

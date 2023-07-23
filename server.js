@@ -1,3 +1,4 @@
+import cors from 'cors'
 import 'express-async-errors'
 import express from 'express'
 const app = express()
@@ -15,8 +16,10 @@ import jobsRouter from './routes/jobsRoutes.js'
 import notFoundMiddleware from './middleware/not-found.js'
 import errorHandlerMiddleware from './middleware/error-handler.js'
 
+app.use(cors())
 //makes json available to the controllers, middleware
 app.use(express.json())
+
 
 app.get('/',(req,res)=>{
     res.json({ msg: 'Welcome!'})

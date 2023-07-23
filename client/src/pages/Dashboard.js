@@ -7,5 +7,5 @@ const Dashboard = () => {
         Dashboard 
     </h1>
   )
-}
+} 
 export default Dashboard
