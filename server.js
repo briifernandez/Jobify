@@ -52,9 +52,41 @@ const start = async () => {
     } 
     catch (error) {
         console.log(error)
+        //added
+        process.exit(1);
 
     }
 }
 
 //invoke function
 start()
+
+//added
+const shutdown = () => {
+    console.log('Shutting down server gracefully...');
+    if (server) {
+      server.close(() => {
+        console.log('Server has been gracefully closed.');
+        process.exit(0); // Exit with a success code (0)
+      });
+    }
+  };
+  
+  // Listen for the shutdown signals (SIGINT and SIGTERM)
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+
+
+
+  //connectDB error handling
+//   const start = async () => {
+//     try {
+//       await connectDB(process.env.MONGO_URL);
+//       server = app.listen(port, () => {
+//         console.log(`Server is listening on port ${port}...`);
+//       });
+//     } catch (error) {
+//       console.log(error);
+//       process.exit(1); // Exit with a non-zero status code (indicates an error)
+//     }
+//   };
