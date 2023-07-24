@@ -1,6 +1,6 @@
 import User from '../models/User.js'
 import { StatusCodes } from 'http-status-codes'
-import { BadRequestError } from '../errors/index.js'
+import { BadRequestError, UnAuthenticatedError } from '../errors/index.js'
 
 const register = async (req, res) => {
         const {name,email,password} = req.body
@@ -19,8 +19,7 @@ const register = async (req, res) => {
 
         //JWT we are able to invoke the function from User.js
         const token = user.createJWT()
-        res.status(StatusCodes.CREATED)
-        .json({ 
+        res.status(StatusCodes.CREATED).json({ 
             user: {
             email:user.email, 
             lastName:user.lastName,
@@ -36,7 +35,33 @@ const register = async (req, res) => {
     
   
 const login = async (req, res) => {
-    res.send('login user')
+    //if email and password is missing throw error
+    const { email, password } = req.body
+    if (!email || !password) {
+        throw new BadRequestError('Please provide all values')
+    }
+
+    //since password was select false that means we would not get that property in our response
+    //find the user with the email, overides the select and gets password
+    const user = await User.findOne({ email }).select('+password')
+
+    //if user does not exist throw unauth error
+    if(!user) {
+        throw new UnAuthenticatedError('Invalid Credentials')
+    }
+
+
+    const isPasswordCorrect = await user.comparePassword(password)
+    //if password is incorrect throw error
+    if(!isPasswordCorrect) {
+        throw new UnAuthenticatedError('Invalid Credentials')
+    }
+
+    const token = user.createJWT()
+    //removes password from response
+    user.password = undefined
+
+    res.status(StatusCodes.OK).json({ user, token, location:user.location})
 }
 
 const updateUser = async (req, res) => {
