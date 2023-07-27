@@ -14,6 +14,7 @@ function App() {
 
     <Routes>
 
+    {/**Nested Routes */}
       <Route path="/" element= {
       <ProtectedRoute>
         <SharedLayout/>
@@ -24,6 +25,8 @@ function App() {
         <Route path="add-job" element={<AddJob/>}/>
         <Route path="profile" element={<Profile/>}/>
       </Route>
+
+
 
       <Route path="/register" element={<Register/>}/>
       <Route path="/landing" element={<Landing/>}/>
