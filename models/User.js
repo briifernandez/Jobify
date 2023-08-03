@@ -55,6 +55,9 @@ const UserSchema = new mongoose.Schema({
 //will get triggered in 2 instances - User.create and one in update user
 //this does NOT work if you use User.findOneAndUpdate
 UserSchema.pre('save', async function () {
+    // console.log(this.modifiedPaths())
+    //if i am not modifying the password field
+    if(!this.isModified('password')) return
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt)
     
