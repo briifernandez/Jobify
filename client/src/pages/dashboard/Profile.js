@@ -13,11 +13,11 @@ const Profile = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    //remove while testing
-    // if(!name || !email || !lastName || !location) {
-    //   displayAlert()
-    //   return
-    // }
+    //remove while testing, cannot check 400 response on back end if front end is already checking for it
+    if(!name || !email || !lastName || !location) {
+      displayAlert()
+      return
+    }
     updateUser({ name, email, lastName, location })
 
   }
