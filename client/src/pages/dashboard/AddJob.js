@@ -1,8 +1,9 @@
-import { FormRow, Alert } from '../../components'
+import { FormRow, FormRowSelect, Alert } from '../../components'
 import { useAppContext } from '../../context/appContext'
 import Wrapper from '../../assets/wrappers/DashboardFormPage'
 const AddJob = () => {
   const {
+    isLoading,
     isEditing,
     showAlert,
     displayAlert,
@@ -13,6 +14,10 @@ const AddJob = () => {
     jobTypeOptions,
     status,
     statusOptions,
+    handleChange,
+    clearValues,
+    createJob,
+    editJob,
   } = useAppContext()
 
   const handleSubmit = (e) => {
@@ -22,12 +27,17 @@ const AddJob = () => {
       displayAlert()
       return
     }
-    console.log('create job')
+    if(isEditing) {
+      editJob()
+      return
+    }
+    createJob()
+
   }
   const handleJobInput = (e) => {
     const name = e.target.name
     const value = e.target.value
-    console.log(`${name}: ${value}`)
+    handleChange({name, value})
   } 
 
 
@@ -61,34 +71,44 @@ const AddJob = () => {
         handleChange = {handleJobInput}
         />
 
-        {/* job type */}
-        <div className="form-row">
-          <label htmlFor="jobType" className='form-label'>
-            job type
-          </label>
-          <select 
-          name='jobType' 
-          values={jobType} 
-          onChange={handleJobInput} 
-          className='form-select'
-          >
-            {jobTypeOptions.map((itemValue, index) => {
-              return (
-                <option key={index} value={itemValue}>
-                  {itemValue}
-                </option>
-              )
-            })}
-
-          </select>
-        </div>
         {/* job status */}
+        <FormRowSelect 
+        name='status' 
+        value= {status} 
+        handleChange={handleJobInput} 
+        list={statusOptions}
+        />
+        {/* job type */}
+        <FormRowSelect 
+        name='jobType'
+        labelText="job type" 
+        value= {jobType} 
+        handleChange={handleJobInput} 
+        list={jobTypeOptions}
+        />
+       
+        {/* btn container */}
         <div className='btn-container'>
-          <button type ='submit' className='btn btn-block submit-btn' onClick={handleSubmit}>
+          <button 
+          type ='submit' 
+          className='btn btn-block submit-btn' 
+          onClick={handleSubmit}
+          disabled={isLoading}
+          >
             submit
           </button>
-        </div>
-        
+          
+        {/* this btn has to go after the previous btn since if we press enter to submit it will just clear the values without actually submitting  */}
+          <button className='btn btn-block clear-btn' onClick={(e)=>{
+            e.preventDefault()
+            clearValues()
+
+          }}>
+            clear
+ 
+          </button>
+
+        </div> 
       </div>
     </form>
   </Wrapper>

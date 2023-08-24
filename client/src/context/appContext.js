@@ -17,7 +17,16 @@ import {
     LOGOUT_USER, 
     UPDATE_USER_BEGIN,
     UPDATE_USER_SUCCESS,
-    UPDATE_USER_ERROR
+    UPDATE_USER_ERROR,
+    HANDLE_CHANGE, 
+    CLEAR_VALUES, 
+    CREATE_JOB_BEGIN,
+    CREATE_JOB_SUCCESS,
+    CREATE_JOB_ERROR,
+    GET_JOBS_BEGIN,
+    GET_JOBS_SUCCESS,
+    SET_EDIT_JOB,
+    DELETE_JOB_BEGIN,
  
 } from "./actions"
 
@@ -35,6 +44,7 @@ const initialState = {
     userLocation: userLocation || '',
     showSidebar: false,
 
+    //related to jobs
     isEditing: false,
     editJobId: '',
     position: '',
@@ -43,7 +53,13 @@ const initialState = {
     jobTypeOptions: ['full-time', 'part-time', 'remote', 'internship'],
     jobType: 'full-time',
     statusOptions: ['interview', 'declined', 'pending'],
-    status: 'pending'
+    status: 'pending',
+
+    //get all jobs
+    jobs: [],
+    totalJobs: 0,
+    numOfPages: 1,
+    page: 1,
 }
   
 //create context
@@ -193,10 +209,89 @@ const AppProvider = ({ children }) => {
         clearAlert()
     }
 
-    return <AppContext.Provider
-        value={{ ...state, displayAlert, registerUser, loginUser, toggleSidebar, logoutUser, updateUser }} >
+    const handleChange = ({ name, value}) => {
+        dispatch({ type: HANDLE_CHANGE, payload: {name, value }})
+    }
+
+    const clearValues = () => {
+        dispatch({type: CLEAR_VALUES})
+    }
+
+    const createJob = async () => {
+        dispatch({type: CREATE_JOB_BEGIN})
+        try {
+            const { position, company, jobLocation, jobType, status } = state
+            await authFetch.post('/jobs', {
+                position, 
+                company, 
+                jobLocation, 
+                jobType, 
+                status
+            })
+            dispatch({ type: CREATE_JOB_SUCCESS })
+            dispatch({ type: CLEAR_VALUES })
+        } catch (error) {
+            if( error.response.status === 401) return
+            dispatch({
+                type: CREATE_JOB_ERROR,
+                payload: { msg: error.response.data.msg },
+            })   
+        }
+        clearAlert()
+    }
+
+    const getJobs = async () => {
+        let url = `/jobs`
+
+        dispatch({ type: GET_JOBS_BEGIN })
+        try{
+            const { data } = await authFetch(url)
+            const { jobs, totalJobs, numOfPages } = data
+            dispatch({
+                type: GET_JOBS_SUCCESS,
+                payload: {
+                    jobs,
+                    totalJobs,
+                    numOfPages,
+                },
+            })
+        }
+        catch(error) {
+            console.log(error.response)
+            //logoutUser()
+        }
+        //clears any previous alerts when moving to other pages since it does stay on the page for 3 seconds
+        clearAlert()
+    }
+
+    const setEditJob = (id) => {
+        dispatch({type:SET_EDIT_JOB, payload: { id }})
+    }
+
+    const editJob = () => {
+        console.log('edit job')
+    }
+
+    const deleteJob = async (jobId) => {
+        dispatch({type:DELETE_JOB_BEGIN})
+        try {
+            await authFetch.delete(`/jobs/${jobId}`)
+            getJobs()
+        } catch (error) {
+            console.log(error.response)
+            // logoutUser()
+        }
+
+      
+    }
+
+
+
+
+    return (<AppContext.Provider
+        value={{ ...state, displayAlert, registerUser, loginUser, toggleSidebar, logoutUser, updateUser, handleChange, clearValues, createJob, getJobs, setEditJob, deleteJob, editJob }} >
         {children}
-    </AppContext.Provider>
+    </AppContext.Provider>)
 }
 
 //creates custom hook
